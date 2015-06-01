@@ -1,1 +1,119 @@
-hello world
+<!DOCTYPE html>
+<html>
+  <head>
+     <!-- Load Leaflet from CDN-->
+    <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" />
+    <script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
+
+    <!-- we encourage you to replace 'latest' with a hardcode version number (like '1.0.0-rc.7') in production applications -->
+   <script src="http://cdn.jsdelivr.net/leaflet.esri/1.0.0-rc.7/esri-leaflet.js"></script>
+
+    <style>
+      html, body,  #map {
+        width : 100%;
+        height : 100%;
+      }
+    </style>
+
+
+<!-- Esri Leaflet Geocoder -->
+    <script src="http://cdn-geoweb.s3.amazonaws.com/esri-leaflet-geocoder/0.0.1-beta.3/esri-leaflet-geocoder.js"></script>
+    <link rel="stylesheet" type="text/css" href="http://cdn-geoweb.s3.amazonaws.com/esri-leaflet-geocoder/0.0.1-beta.3/esri-leaflet-geocoder.css">
+
+
+  </head>
+  <body>
+  	<!-- creates div called map-->
+    <div id="map"></div>
+    
+<!-- switch basemaps-->
+      	<style>
+  #basemaps-wrapper {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 10;
+    background: white;
+    padding: 10px;
+  }
+  #basemaps {
+    margin-bottom: 5px;
+  }
+</style>
+
+<div id="basemaps-wrapper" class="leaflet-bar">
+  <select name="basemaps" id="basemaps">
+    <option value="Topographic">Topographic<options>
+    <option value="Imagery">Imagery<options>
+  </select>
+</div>
+
+    <script>
+    //defines initial extents
+      var map = L.map('map').setView([35.3, -106.7], 12);
+
+
+//add and define basemap
+      var layer = L.esri.basemapLayer("Topographic").addTo(map);
+     
+      	// creates variable called bikes and defines its location
+      	//adds bikes to map, this is where you would define opacity, etc.
+      var Bikes = L.esri.dynamicMapLayer('http://65.123.159.55/arcgis/rest/services/MapGallery/Bikeways/MapServer',{
+      		opacity: 0.5,
+      		useCors: false
+		      }).addTo(map);
+        
+      	
+
+      	// custom popup for variable Bikes
+      	Bikes.bindPopup(function (error, featureCollection) {
+    if(error || featureCollection.features.length === 0) {
+      return false;
+    } else {
+      return featureCollection.features[0].properties.Road;
+    }
+  });
+
+// script for basemap selector
+ var layerLabels;
+
+  function setBasemap(basemap) {
+    if (layer) {
+      map.removeLayer(layer);
+    }
+    layer = L.esri.basemapLayer(basemap);
+    map.addLayer(layer);
+    if (layerLabels) {
+      map.removeLayer(layerLabels);
+    }
+
+    if (basemap === 'ShadedRelief' || basemap === 'Oceans' || basemap === 'Gray' || basemap === 'DarkGray' || basemap === 'Imagery' || basemap === 'Terrain') {
+
+      layerLabels = L.esri.basemapLayer(basemap + 'Labels');
+      map.addLayer(layerLabels);
+    }
+  }
+
+  var basemaps = document.getElementById('basemaps');
+
+  basemaps.addEventListener('change', function(){
+    setBasemap(basemaps.value);
+  });
+
+ // create the geocoding control and add it to the map
+      var searchControl = new L.esri.Controls.Geosearch().addTo(map);
+
+      // create an empty layer group to store the results and add it to the map
+      var results = new L.LayerGroup().addTo(map);
+
+      // listen for the results event and add every result to the map
+      searchControl.on('results', function(data){
+        results.clearLayers();
+        for (var i = data.results.length - 1; i >= 0; i--) {
+          results.addLayer(L.marker(data.results[i].latlng));
+        };
+      });
+      
+    </script>
+  </body>
+</html>
