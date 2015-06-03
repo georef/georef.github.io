@@ -46,29 +46,27 @@
 
     <script>
   //defines initial extents
-      var map = L.map('map').setView([35.3, -106.7], 12);
+      var map = L.map('map').setView([35.3, -106.6], 12);
 
 //add and define basemap
-      var layer = L.esri.basemapLayer("Topographic").addTo(map);
+      var layer = L.esri.basemapLayer("Imagery").addTo(map);
      
-      	// creates variable called bikes and defines its location
+      	// creates variable called ROW and defines its location
       	//adds bikes to map, this is where you would define opacity, etc.
       var ROW = L.esri.dynamicMapLayer('http://65.123.159.55/arcgis/rest/services/rowreview/MapServer',{
       		opacity: 0.5,
       		useCors: false
-		      }).addTo(map);
-        
-      	
+		      }).addTo(map);   	
 
-      	// custom popup for variable Bikes
-      	ROW.bindPopup(function (error, featureCollection) {
+      	// custom popup for variable right of way
+      ROW.bindPopup(function (error, featureCollection) {
     if(error || featureCollection.features.length === 0) {
       return false;
     } else {
-      return featureCollection.features[0].properties.Road;
+      return  '<h3> Name: '+ featureCollection.features[0].properties.Name + '</h3>Required ROW: ' + featureCollection.features[0].properties.RequiredROW + 'ft <br>' + 'Existing ROW: ' + featureCollection.features[0].properties.ExistingROW + 'ft <br>' + 'Road Class: ' + featureCollection.features[0].RoadClassification;
+      
     }
   });
-
 // script for basemap selector
  var layerLabels;
 
